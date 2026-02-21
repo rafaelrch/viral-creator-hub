@@ -15,14 +15,32 @@ const bgMap: Record<string, string> = {
   satisfying: gameplaySatisfying,
 };
 
+const fontMap: Record<string, string> = {
+  inter: "'Inter', sans-serif",
+  "arial-black": "'Arial Black', sans-serif",
+  impact: "'Impact', sans-serif",
+  georgia: "'Georgia', serif",
+  courier: "'Courier New', monospace",
+  comic: "'Comic Sans MS', cursive",
+  verdana: "'Verdana', sans-serif",
+  trebuchet: "'Trebuchet MS', sans-serif",
+};
+
+// Resolve sub-video IDs to their category for image lookup
+const resolveBackground = (bg: string): string => {
+  const prefix = bg.split("-")[0];
+  return bgMap[prefix] || bgMap.minecraft;
+};
+
 interface StepPreviewProps {
   background: string;
   captionColor: string;
   captionEnabled: boolean;
   description: string;
+  captionFont: string;
 }
 
-const StepPreview = ({ background, captionColor, captionEnabled, description }: StepPreviewProps) => {
+const StepPreview = ({ background, captionColor, captionEnabled, description, captionFont }: StepPreviewProps) => {
   const [playing, setPlaying] = useState(false);
   const words = description.split(" ").filter(Boolean);
   const displayWords = words.length > 0 ? words.slice(0, 4).join(" ") : "SUA LEGENDA AQUI";
@@ -41,12 +59,11 @@ const StepPreview = ({ background, captionColor, captionEnabled, description }: 
       <div className="flex justify-center">
         <div className="relative w-[280px] aspect-[9/16] rounded-2xl overflow-hidden border-2 border-border bg-card">
           <img
-            src={bgMap[background] || bgMap.minecraft}
+            src={resolveBackground(background)}
             alt="Background"
             className="w-full h-full object-cover"
           />
 
-          {/* Caption overlay */}
           {captionEnabled && (
             <div className="absolute inset-x-0 bottom-1/3 flex justify-center px-4">
               <motion.span
@@ -55,6 +72,7 @@ const StepPreview = ({ background, captionColor, captionEnabled, description }: 
                 className="text-xl font-black uppercase text-center leading-tight tracking-wide"
                 style={{
                   color: captionColor,
+                  fontFamily: fontMap[captionFont] || fontMap.inter,
                   textShadow: `0 2px 10px rgba(0,0,0,0.8), 0 0 20px ${captionColor}30`,
                 }}
               >
@@ -63,7 +81,6 @@ const StepPreview = ({ background, captionColor, captionEnabled, description }: 
             </div>
           )}
 
-          {/* Controls overlay */}
           <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-background/90 to-transparent">
             <div className="flex items-center gap-3">
               <button
