@@ -1,12 +1,16 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { Type } from "lucide-react";
 
-const captionColors = [
-  { id: "white", label: "Branco", color: "#FFFFFF" },
-  { id: "yellow", label: "Amarelo", color: "#FACC15" },
-  { id: "red", label: "Vermelho", color: "#EF4444" },
-  { id: "cyan", label: "Ciano", color: "#06B6D4" },
-  { id: "green", label: "Verde Neon", color: "#22C55E" },
-  { id: "pink", label: "Rosa", color: "#EC4899" },
+const captionFonts = [
+  { id: "inter", label: "Inter", family: "'Inter', sans-serif" },
+  { id: "arial-black", label: "Arial Black", family: "'Arial Black', sans-serif" },
+  { id: "impact", label: "Impact", family: "'Impact', sans-serif" },
+  { id: "georgia", label: "Georgia", family: "'Georgia', serif" },
+  { id: "courier", label: "Courier", family: "'Courier New', monospace" },
+  { id: "comic", label: "Comic Sans", family: "'Comic Sans MS', cursive" },
+  { id: "verdana", label: "Verdana", family: "'Verdana', sans-serif" },
+  { id: "trebuchet", label: "Trebuchet", family: "'Trebuchet MS', sans-serif" },
 ];
 
 interface StepSubtitleProps {
@@ -14,9 +18,13 @@ interface StepSubtitleProps {
   onToggle: (val: boolean) => void;
   captionColor: string;
   onColorChange: (color: string) => void;
+  captionFont: string;
+  onFontChange: (font: string) => void;
 }
 
-const StepSubtitle = ({ enabled, onToggle, captionColor, onColorChange }: StepSubtitleProps) => {
+const StepSubtitle = ({ enabled, onToggle, captionColor, onColorChange, captionFont, onFontChange }: StepSubtitleProps) => {
+  const selectedFontFamily = captionFonts.find((f) => f.id === captionFont)?.family || captionFonts[0].family;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,22 +55,60 @@ const StepSubtitle = ({ enabled, onToggle, captionColor, onColorChange }: StepSu
 
       {enabled && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-          {/* Color Picker */}
+          {/* Color Picker - Full RGB */}
           <div className="glass-panel p-5 space-y-4">
             <span className="font-medium text-sm">Cor da Legenda</span>
-            <div className="flex gap-3 flex-wrap">
-              {captionColors.map((c) => (
-                <motion.button
-                  key={c.id}
-                  onClick={() => onColorChange(c.color)}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 rounded-full border-2 transition-all ${
-                    captionColor === c.color ? "border-foreground scale-110" : "border-border"
-                  }`}
-                  style={{ backgroundColor: c.color }}
-                  title={c.label}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <input
+                  type="color"
+                  value={captionColor}
+                  onChange={(e) => onColorChange(e.target.value)}
+                  className="w-14 h-14 rounded-xl border-2 border-border cursor-pointer bg-transparent [&::-webkit-color-swatch-wrapper]:p-1 [&::-webkit-color-swatch]:rounded-lg [&::-webkit-color-swatch]:border-none"
                 />
+              </div>
+              <div className="flex-1 space-y-1">
+                <input
+                  type="text"
+                  value={captionColor}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) onColorChange(val);
+                  }}
+                  className="bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm font-mono w-full focus:outline-none focus:border-primary"
+                  placeholder="#FFFFFF"
+                />
+                <p className="text-xs text-muted-foreground">Escolha qualquer cor do espectro RGB</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Font Selector */}
+          <div className="glass-panel p-5 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Type className="w-4 h-4 text-primary" />
+              Fonte da Legenda
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {captionFonts.map((font) => (
+                <motion.button
+                  key={font.id}
+                  onClick={() => onFontChange(font.id)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    captionFont === font.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/40"
+                  }`}
+                >
+                  <span
+                    className="text-sm font-bold uppercase"
+                    style={{ fontFamily: font.family }}
+                  >
+                    {font.label}
+                  </span>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -70,12 +116,13 @@ const StepSubtitle = ({ enabled, onToggle, captionColor, onColorChange }: StepSu
           {/* Preview */}
           <div className="glass-panel p-6 flex items-center justify-center min-h-[120px]">
             <motion.span
-              key={captionColor}
+              key={captionColor + captionFont}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="text-2xl font-black uppercase tracking-wider"
               style={{
                 color: captionColor,
+                fontFamily: selectedFontFamily,
                 textShadow: `0 2px 8px ${captionColor}40, 0 0 20px ${captionColor}20`,
               }}
             >

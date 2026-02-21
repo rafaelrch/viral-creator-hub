@@ -17,6 +17,8 @@ interface ProjectState {
   audioUrl: string | null;
   captionEnabled: boolean;
   captionColor: string;
+  captionFont: string;
+  language: string;
 }
 
 const STORAGE_KEY = "viralvideo-project";
@@ -24,22 +26,27 @@ const STORAGE_KEY = "viralvideo-project";
 const loadState = (): ProjectState => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) return { ...defaultState, ...JSON.parse(saved) };
   } catch {}
-  return {
-    background: "",
-    theme: "",
-    description: "",
-    audioUrl: null,
-    captionEnabled: true,
-    captionColor: "#FFFFFF",
-  };
+  return defaultState;
+};
+
+const defaultState: ProjectState = {
+  background: "",
+  theme: "",
+  description: "",
+  audioUrl: null,
+  captionEnabled: true,
+  captionColor: "#FFFFFF",
+  captionFont: "inter",
+  language: "pt",
 };
 
 const VideoCreator = () => {
   const [step, setStep] = useState(1);
   const [state, setState] = useState<ProjectState>(loadState);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
 
   const save = useCallback((newState: ProjectState) => {
     setState(newState);
@@ -60,12 +67,28 @@ const VideoCreator = () => {
     }
   };
 
+  const handleGenerateScript = async () => {
+    setIsGeneratingScript(true);
+    // Simulate AI script generation (real implementation requires Lovable Cloud + AI)
+    await new Promise((r) => setTimeout(r, 2500));
+    const sampleScripts: Record<string, string> = {
+      curiosidades: "Você sabia que o cérebro humano gera eletricidade suficiente para acender uma lâmpada? Isso mesmo! Nosso cérebro produz entre 10 e 23 watts de energia. E mais: ele usa 20% de todo o oxigênio que respiramos.",
+      psicologia: "Existe um fenômeno chamado Efeito Dunning-Kruger onde pessoas com pouco conhecimento se acham experts. Quanto menos sabemos, mais confiantes ficamos. É a ilusão da incompetência.",
+      perturbadores: "Existem mais de 40 serial killers ativos nos EUA neste exato momento. A maioria nunca será pega. Eles vivem entre nós, em casas normais, com vidas aparentemente comuns.",
+      conspiracoes: "A Área 51 só foi oficialmente reconhecida pelo governo americano em 2013. Antes disso, negar sua existência era protocolo. O que mais estão escondendo?",
+      ricos: "Os 10 mais ricos do mundo possuem mais riqueza que os 3.5 bilhões mais pobres combinados. Eles acordam às 4 da manhã e leem 50 livros por ano em média.",
+      crimes: "Em 1971, D.B. Cooper sequestrou um avião, recebeu 200 mil dólares de resgate, e pulou de paraquedas. Nunca foi encontrado. É o único caso de sequestro aéreo não resolvido nos EUA.",
+    };
+    const script = sampleScripts[state.theme] || "Seu roteiro gerado por IA aparecerá aqui com base no tema selecionado.";
+    update({ description: script });
+    setIsGeneratingScript(false);
+  };
+
   const handleGenerateVoice = async () => {
     setStep(4);
     setIsGenerating(true);
     // Simulate TTS generation (real implementation requires ElevenLabs + Cloud)
     await new Promise((r) => setTimeout(r, 3000));
-    // Use a placeholder for demo
     update({ audioUrl: "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" });
     setIsGenerating(false);
   };
@@ -75,7 +98,13 @@ const VideoCreator = () => {
     handleGenerateVoice();
   };
 
-  const next = () => step < 7 && canAdvance() && setStep(step + 1);
+  const next = () => {
+    if (step === 3 && canAdvance()) {
+      handleGenerateVoice();
+      return;
+    }
+    step < 7 && canAdvance() && setStep(step + 1);
+  };
   const prev = () => step > 1 && setStep(step - 1);
 
   return (
@@ -116,7 +145,11 @@ const VideoCreator = () => {
               <StepDescription
                 description={state.description}
                 onChange={(d) => update({ description: d })}
-                onGenerateVoice={handleGenerateVoice}
+                onGenerateScript={handleGenerateScript}
+                isGeneratingScript={isGeneratingScript}
+                language={state.language}
+                onLanguageChange={(lang) => update({ language: lang })}
+                theme={state.theme}
               />
             )}
             {step === 4 && (
@@ -132,6 +165,8 @@ const VideoCreator = () => {
                 onToggle={(v) => update({ captionEnabled: v })}
                 captionColor={state.captionColor}
                 onColorChange={(c) => update({ captionColor: c })}
+                captionFont={state.captionFont}
+                onFontChange={(f) => update({ captionFont: f })}
               />
             )}
             {step === 6 && (
@@ -140,6 +175,7 @@ const VideoCreator = () => {
                 captionColor={state.captionColor}
                 captionEnabled={state.captionEnabled}
                 description={state.description}
+                captionFont={state.captionFont}
               />
             )}
             {step === 7 && <StepDownload />}
@@ -165,7 +201,7 @@ const VideoCreator = () => {
               disabled={!canAdvance()}
               className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold disabled:opacity-30 neon-glow hover:brightness-110 transition-all"
             >
-              Próximo
+              {step === 3 ? "Gerar Narração" : "Próximo"}
               <ChevronRight className="w-4 h-4" />
             </button>
           )}
