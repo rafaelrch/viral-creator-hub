@@ -1,0 +1,112 @@
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Film, Settings, FileText, Mic, Type } from "lucide-react";
+import SectionBackground from "../sections/SectionBackground";
+import SectionVideoConfig from "../sections/SectionVideoConfig";
+import SectionScript from "../sections/SectionScript";
+import SectionNarration from "../sections/SectionNarration";
+import SectionSubtitles from "../sections/SectionSubtitles";
+import type { ProjectState } from "../VideoCreator";
+
+interface EditorPanelProps {
+  state: ProjectState;
+  update: (partial: Partial<ProjectState>) => void;
+}
+
+const EditorPanel = ({ state, update }: EditorPanelProps) => {
+  return (
+    <Accordion type="multiple" defaultValue={["background"]} className="space-y-1">
+      <AccordionItem value="background" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Film className="w-4 h-4 text-primary" />
+            Background Video
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionBackground selected={state.background} onSelect={(bg) => update({ background: bg })} />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="config" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Settings className="w-4 h-4 text-primary" />
+            Configurações do Vídeo
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionVideoConfig
+            duration={state.duration}
+            onDurationChange={(d) => update({ duration: d })}
+            aspectRatio={state.aspectRatio}
+            onAspectRatioChange={(ar) => update({ aspectRatio: ar })}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="script" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <FileText className="w-4 h-4 text-primary" />
+            Roteiro
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionScript
+            language={state.language}
+            onLanguageChange={(l) => update({ language: l })}
+            theme={state.theme}
+            onThemeChange={(t) => update({ theme: t })}
+            scriptMode={state.scriptMode}
+            onScriptModeChange={(m) => update({ scriptMode: m })}
+            aiPrompt={state.aiPrompt}
+            onAiPromptChange={(p) => update({ aiPrompt: p })}
+            description={state.description}
+            onDescriptionChange={(d) => update({ description: d })}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="narration" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Mic className="w-4 h-4 text-primary" />
+            Narração
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionNarration
+            voiceId={state.voiceId}
+            onVoiceChange={(v) => update({ voiceId: v })}
+            description={state.description}
+            audioUrl={state.audioUrl}
+            onAudioGenerated={(url) => update({ audioUrl: url })}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="subtitles" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Type className="w-4 h-4 text-primary" />
+            Legendas
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionSubtitles
+            enabled={state.captionEnabled}
+            onToggle={(v) => update({ captionEnabled: v })}
+            color={state.captionColor}
+            onColorChange={(c) => update({ captionColor: c })}
+            font={state.captionFont}
+            onFontChange={(f) => update({ captionFont: f })}
+            size={state.captionSize}
+            onSizeChange={(s) => update({ captionSize: s })}
+          />
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
+
+export default EditorPanel;
