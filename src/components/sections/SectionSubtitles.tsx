@@ -1,4 +1,4 @@
-import { Type } from "lucide-react";
+import { Type, Sun } from "lucide-react";
 
 const captionFonts = [
   { id: "inter", label: "Inter", family: "'Inter', sans-serif" },
@@ -11,6 +11,16 @@ const captionFonts = [
   { id: "trebuchet", label: "Trebuchet", family: "'Trebuchet MS', sans-serif" },
 ];
 
+const fontWeights = [
+  { id: "300", label: "Light" },
+  { id: "400", label: "Regular" },
+  { id: "500", label: "Medium" },
+  { id: "600", label: "Semibold" },
+  { id: "700", label: "Bold" },
+  { id: "800", label: "Extra Bold" },
+  { id: "900", label: "Black" },
+];
+
 interface Props {
   enabled: boolean;
   onToggle: (v: boolean) => void;
@@ -20,9 +30,19 @@ interface Props {
   onFontChange: (f: string) => void;
   size: number;
   onSizeChange: (s: number) => void;
+  letterSpacing: number;
+  onLetterSpacingChange: (v: number) => void;
+  shadow: boolean;
+  onShadowToggle: (v: boolean) => void;
+  weight: string;
+  onWeightChange: (w: string) => void;
 }
 
-const SectionSubtitles = ({ enabled, onToggle, color, onColorChange, font, onFontChange, size, onSizeChange }: Props) => {
+const SectionSubtitles = ({
+  enabled, onToggle, color, onColorChange, font, onFontChange,
+  size, onSizeChange, letterSpacing, onLetterSpacingChange,
+  shadow, onShadowToggle, weight, onWeightChange
+}: Props) => {
   const selectedFamily = captionFonts.find((f) => f.id === font)?.family || captionFonts[0].family;
 
   return (
@@ -35,7 +55,7 @@ const SectionSubtitles = ({ enabled, onToggle, color, onColorChange, font, onFon
           className={`w-10 h-5 rounded-full relative transition-colors ${enabled ? "bg-primary" : "bg-muted"}`}
         >
           <div
-            className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${enabled ? "left-5.5" : "left-0.5"}`}
+            className="w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all"
             style={{ left: enabled ? "22px" : "2px" }}
           />
         </button>
@@ -87,6 +107,27 @@ const SectionSubtitles = ({ enabled, onToggle, color, onColorChange, font, onFon
             </div>
           </div>
 
+          {/* Font Weight */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Peso da Fonte</label>
+            <div className="grid grid-cols-3 gap-1">
+              {fontWeights.map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => onWeightChange(w.id)}
+                  className={`px-2 py-1.5 rounded border text-[10px] transition-all ${
+                    weight === w.id
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                  style={{ fontWeight: Number(w.id) }}
+                >
+                  {w.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Size */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">
@@ -102,15 +143,49 @@ const SectionSubtitles = ({ enabled, onToggle, color, onColorChange, font, onFon
             />
           </div>
 
+          {/* Letter Spacing */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">
+              Espaçamento: {letterSpacing}px
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={20}
+              step={1}
+              value={letterSpacing}
+              onChange={(e) => onLetterSpacingChange(Number(e.target.value))}
+              className="w-full accent-primary"
+            />
+          </div>
+
+          {/* Shadow Toggle */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <Sun className="w-3 h-3" /> Sombra no Texto
+            </label>
+            <button
+              onClick={() => onShadowToggle(!shadow)}
+              className={`w-10 h-5 rounded-full relative transition-colors ${shadow ? "bg-primary" : "bg-muted"}`}
+            >
+              <div
+                className="w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all"
+                style={{ left: shadow ? "22px" : "2px" }}
+              />
+            </button>
+          </div>
+
           {/* Preview */}
           <div className="bg-muted/30 rounded-lg p-3 flex items-center justify-center min-h-[50px]">
             <span
-              className="font-black uppercase tracking-wider"
+              className="uppercase tracking-wider"
               style={{
                 color,
                 fontFamily: selectedFamily,
                 fontSize: `${Math.min(size, 28)}px`,
-                textShadow: `0 1px 4px ${color}40`,
+                fontWeight: Number(weight),
+                letterSpacing: `${letterSpacing}px`,
+                textShadow: shadow ? `0 2px 8px ${color}60, 0 0 20px rgba(0,0,0,0.5)` : "none",
               }}
             >
               PREVIEW

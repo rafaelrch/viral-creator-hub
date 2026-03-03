@@ -103,6 +103,12 @@ const EditorPanel = ({ state, update }: EditorPanelProps) => {
             onFontChange={(f) => update({ captionFont: f })}
             size={state.captionSize}
             onSizeChange={(s) => update({ captionSize: s })}
+            letterSpacing={state.captionLetterSpacing}
+            onLetterSpacingChange={(v) => update({ captionLetterSpacing: v })}
+            shadow={state.captionShadow}
+            onShadowToggle={(v) => update({ captionShadow: v })}
+            weight={state.captionWeight}
+            onWeightChange={(w) => update({ captionWeight: w })}
           />
         </AccordionContent>
       </AccordionItem>

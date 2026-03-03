@@ -37,25 +37,18 @@ interface PreviewPanelProps {
 }
 
 /**
- * Splits the script into timed word groups for subtitle display.
- * Each group shows ~3-4 words at a time, evenly distributed across the audio duration.
+ * Splits the script into individual words, each timed evenly across audio duration.
  */
-function buildWordGroups(text: string, totalDuration: number) {
+function buildWordTimings(text: string, totalDuration: number) {
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length === 0 || totalDuration <= 0) return [];
 
-  const WORDS_PER_GROUP = 3;
-  const groups: { text: string; start: number; end: number }[] = [];
-
-  for (let i = 0; i < words.length; i += WORDS_PER_GROUP) {
-    const chunk = words.slice(i, i + WORDS_PER_GROUP).join(" ");
-    const start = (i / words.length) * totalDuration;
-    const endIdx = Math.min(i + WORDS_PER_GROUP, words.length);
-    const end = (endIdx / words.length) * totalDuration;
-    groups.push({ text: chunk, start, end });
-  }
-
-  return groups;
+  const wordDuration = totalDuration / words.length;
+  return words.map((word, i) => ({
+    word,
+    start: i * wordDuration,
+    end: (i + 1) * wordDuration,
+  }));
 }
 
 const PreviewPanel = ({ state }: PreviewPanelProps) => {
@@ -66,19 +59,18 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number>(0);
 
-  // Build word groups whenever script or audio duration changes
-  const wordGroups = useMemo(
-    () => buildWordGroups(state.description, duration),
+  // Build per-word timings
+  const wordTimings = useMemo(
+    () => buildWordTimings(state.description, duration),
     [state.description, duration]
   );
 
-  // Find current subtitle group based on playback time
-  const currentGroup = useMemo(
-    () => wordGroups.find((g) => currentTime >= g.start && currentTime < g.end),
-    [wordGroups, currentTime]
+  // Find current word based on playback time
+  const currentWord = useMemo(
+    () => wordTimings.find((w) => currentTime >= w.start && currentTime < w.end),
+    [wordTimings, currentTime]
   );
 
-  // Animation loop for smooth progress
   const tick = useCallback(() => {
     const audio = audioRef.current;
     if (audio && !audio.paused) {
@@ -87,19 +79,16 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
     }
   }, []);
 
-  // Sync muted state
   useEffect(() => {
     if (audioRef.current) audioRef.current.muted = muted;
   }, [muted]);
 
-  // Reset playback state when audio source changes
   useEffect(() => {
     setPlaying(false);
     setCurrentTime(0);
     setDuration(0);
   }, [state.audioUrl]);
 
-  // Cleanup animation frame
   useEffect(() => {
     return () => cancelAnimationFrame(animFrameRef.current);
   }, []);
@@ -107,7 +96,6 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
   const handlePlayPause = () => {
     const audio = audioRef.current;
     if (!audio || !state.audioUrl) return;
-
     if (playing) {
       audio.pause();
       cancelAnimationFrame(animFrameRef.current);
@@ -143,9 +131,7 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
   };
 
   const onLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
+    if (audioRef.current) setDuration(audioRef.current.duration);
   };
 
   const onEnded = () => {
@@ -160,6 +146,17 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
     const m = Math.floor(s / 60);
     const sec = Math.floor(s % 60);
     return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  const captionStyle = {
+    color: state.captionColor,
+    fontFamily: fontMap[state.captionFont] || fontMap.impact,
+    fontSize: `${state.captionSize}px`,
+    fontWeight: Number(state.captionWeight),
+    letterSpacing: `${state.captionLetterSpacing}px`,
+    textShadow: state.captionShadow
+      ? `0 2px 10px rgba(0,0,0,0.8), 0 0 20px ${state.captionColor}30`
+      : "none",
   };
 
   return (
@@ -202,41 +199,31 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
           />
         )}
 
-        {/* Synced subtitles */}
+        {/* Synced subtitles — one word at a time */}
         {state.captionEnabled && state.description && (
           <div className="absolute inset-x-0 bottom-1/3 flex justify-center px-3">
             <AnimatePresence mode="wait">
-              {playing && currentGroup ? (
+              {playing && currentWord ? (
                 <motion.span
-                  key={currentGroup.start}
-                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  key={currentWord.start}
+                  initial={{ opacity: 0, y: 12, scale: 0.85 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                  className="font-black uppercase text-center leading-tight tracking-wide"
-                  style={{
-                    color: state.captionColor,
-                    fontFamily: fontMap[state.captionFont] || fontMap.impact,
-                    fontSize: `${state.captionSize}px`,
-                    textShadow: `0 2px 10px rgba(0,0,0,0.8), 0 0 20px ${state.captionColor}30`,
-                  }}
+                  exit={{ opacity: 0, y: -8, scale: 0.9 }}
+                  transition={{ duration: 0.12 }}
+                  className="uppercase text-center leading-tight"
+                  style={captionStyle}
                 >
-                  {currentGroup.text.toUpperCase()}
+                  {currentWord.word.toUpperCase()}
                 </motion.span>
               ) : !playing ? (
                 <motion.span
                   key="static"
                   animate={{ opacity: [1, 0.7, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="font-black uppercase text-center leading-tight tracking-wide"
-                  style={{
-                    color: state.captionColor,
-                    fontFamily: fontMap[state.captionFont] || fontMap.impact,
-                    fontSize: `${state.captionSize}px`,
-                    textShadow: `0 2px 10px rgba(0,0,0,0.8), 0 0 20px ${state.captionColor}30`,
-                  }}
+                  className="uppercase text-center leading-tight"
+                  style={captionStyle}
                 >
-                  {state.description.split(" ").slice(0, 4).join(" ").toUpperCase()}
+                  {state.description.split(" ")[0]?.toUpperCase() || "LEGENDA"}
                 </motion.span>
               ) : null}
             </AnimatePresence>
@@ -254,7 +241,6 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
               {playing ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
             </button>
 
-            {/* Seekable progress bar */}
             <div className="flex-1 flex flex-col gap-0.5">
               <div
                 className="h-1.5 bg-white/30 rounded-full cursor-pointer relative group"
@@ -293,7 +279,6 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
           </div>
         </div>
 
-        {/* No audio hint */}
         {!state.audioUrl && (
           <div className="absolute top-3 inset-x-3">
             <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1.5 text-center">
