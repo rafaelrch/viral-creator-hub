@@ -46,7 +46,7 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
   const isVertical = state.aspectRatio === "9:16";
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-3 w-full h-full justify-center">
       <div className="text-center">
         <h2 className="text-lg font-bold">Preview</h2>
         <p className="text-xs text-muted-foreground">
@@ -54,9 +54,12 @@ const PreviewPanel = ({ state }: PreviewPanelProps) => {
         </p>
       </div>
 
+      {/* Container that fills available space while maintaining aspect ratio */}
       <div
         className={`relative rounded-2xl overflow-hidden border-2 border-border bg-card ${
-          isVertical ? "w-[240px] aspect-[9/16]" : "w-full max-w-[480px] aspect-video"
+          isVertical
+            ? "h-[min(65vh,600px)] aspect-[9/16]"
+            : "w-[min(90%,700px)] aspect-video"
         }`}
       >
         {state.background ? (

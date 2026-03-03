@@ -63,6 +63,7 @@ const EditorPanel = ({ state, update }: EditorPanelProps) => {
             onAiPromptChange={(p) => update({ aiPrompt: p })}
             description={state.description}
             onDescriptionChange={(d) => update({ description: d })}
+            duration={state.duration}
           />
         </AccordionContent>
       </AccordionItem>
