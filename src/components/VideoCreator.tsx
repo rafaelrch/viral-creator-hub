@@ -19,6 +19,9 @@ export interface ProjectState {
   captionColor: string;
   captionFont: string;
   captionSize: number;
+  captionLetterSpacing: number;
+  captionShadow: boolean;
+  captionWeight: string;
 }
 
 const STORAGE_KEY = "viralclip-project";
