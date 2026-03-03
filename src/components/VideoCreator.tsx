@@ -41,6 +41,9 @@ const defaultState: ProjectState = {
   captionColor: "#FFFFFF",
   captionFont: "impact",
   captionSize: 24,
+  captionLetterSpacing: 2,
+  captionShadow: true,
+  captionWeight: "900",
 };
 
 const loadState = (): ProjectState => {
