@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Globe, Wand2, Loader2, Clock } from "lucide-react";
+import { generateScript } from "@/lib/openai";
 
 const languages = [
   { id: "pt", label: "PT", flag: "🇧🇷" },
@@ -54,7 +55,7 @@ const wordsPerDuration: Record<number, number> = {
   15: 35,
   30: 70,
   60: 140,
-  90: 210,
+  80: 200,
 };
 
 // Longer sample scripts per theme per duration tier
@@ -127,19 +128,28 @@ const SectionScript = ({
     if (dur <= 15) return 15;
     if (dur <= 30) return 30;
     if (dur <= 60) return 60;
-    return 90;
+    return 80;
   };
 
   const handleGenerate = async () => {
     if (!theme) return;
     setIsGenerating(true);
-    // Simulate AI generation with duration-appropriate scripts
-    await new Promise((r) => setTimeout(r, 2000));
-    const tier = getDurationTier(duration);
-    const themeScripts = sampleScripts[theme];
-    const script = themeScripts?.[tier] || "Seu roteiro gerado por IA aparecerá aqui.";
-    onDescriptionChange(script);
-    setIsGenerating(false);
+    try {
+      const script = await generateScript({
+        prompt: aiPrompt,
+        theme: themeLabels[theme] || theme,
+        language,
+        durationSeconds: duration,
+      });
+      onDescriptionChange(script);
+    } catch {
+      const tier = getDurationTier(duration);
+      const themeScripts = sampleScripts[theme];
+      const script = themeScripts?.[tier] || "Seu roteiro gerado por IA aparecerá aqui.";
+      onDescriptionChange(script);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const wordCount = description.split(" ").filter(Boolean).length;

@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Background videos (stored in Supabase Storage)
+public/videos/
+public/videos-compressed/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

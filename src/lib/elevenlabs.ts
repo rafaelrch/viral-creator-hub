@@ -1,6 +1,12 @@
-const ELEVENLABS_API_KEY = "sk_f235067602f52074f47f8e717012b5fa5b680efa9ba2043f";
+const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as string | undefined;
 
 export async function generateSpeech(text: string, voiceId: string): Promise<string> {
+  if (!ELEVENLABS_API_KEY) {
+    throw new Error(
+      "Chave da ElevenLabs não configurada. Defina VITE_ELEVENLABS_API_KEY no seu arquivo .env.local."
+    );
+  }
+
   const response = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
     {

@@ -1,18 +1,33 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Film, Settings, FileText, Mic, Type } from "lucide-react";
+import { Film, FileText, Mic, Type, AtSign } from "lucide-react";
 import SectionBackground from "../sections/SectionBackground";
-import SectionVideoConfig from "../sections/SectionVideoConfig";
 import SectionScript from "../sections/SectionScript";
 import SectionNarration from "../sections/SectionNarration";
 import SectionSubtitles from "../sections/SectionSubtitles";
+import SectionTikTok from "../sections/SectionTikTok";
 import type { ProjectState } from "../VideoCreator";
 
 interface EditorPanelProps {
   state: ProjectState;
   update: (partial: Partial<ProjectState>) => void;
+  tiktokHandle: string;
+  onTiktokHandleChange: (v: string) => void;
+  tiktokConnected: boolean;
+  tiktokDisabled?: boolean;
+  onTikTokConnect: () => void;
+  onTikTokDisconnect: () => void;
 }
 
-const EditorPanel = ({ state, update }: EditorPanelProps) => {
+const EditorPanel = ({
+  state,
+  update,
+  tiktokHandle,
+  onTiktokHandleChange,
+  tiktokConnected,
+  tiktokDisabled,
+  onTikTokConnect,
+  onTikTokDisconnect,
+}: EditorPanelProps) => {
   return (
     <Accordion type="multiple" defaultValue={["background"]} className="space-y-1">
       <AccordionItem value="background" className="glass-panel px-4">
@@ -24,23 +39,6 @@ const EditorPanel = ({ state, update }: EditorPanelProps) => {
         </AccordionTrigger>
         <AccordionContent className="pb-4">
           <SectionBackground selected={state.background} onSelect={(bg) => update({ background: bg })} />
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem value="config" className="glass-panel px-4">
-        <AccordionTrigger className="hover:no-underline py-3">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Settings className="w-4 h-4 text-primary" />
-            Configurações do Vídeo
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pb-4">
-          <SectionVideoConfig
-            duration={state.duration}
-            onDurationChange={(d) => update({ duration: d })}
-            aspectRatio={state.aspectRatio}
-            onAspectRatioChange={(ar) => update({ aspectRatio: ar })}
-          />
         </AccordionContent>
       </AccordionItem>
 
@@ -109,6 +107,25 @@ const EditorPanel = ({ state, update }: EditorPanelProps) => {
             onShadowToggle={(v) => update({ captionShadow: v })}
             weight={state.captionWeight}
             onWeightChange={(w) => update({ captionWeight: w })}
+          />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="tiktok" className="glass-panel px-4">
+        <AccordionTrigger className="hover:no-underline py-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <AtSign className="w-4 h-4 text-primary" />
+            TikTok
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-4">
+          <SectionTikTok
+            handle={tiktokHandle}
+            onHandleChange={onTiktokHandleChange}
+            connected={tiktokConnected}
+            disabled={tiktokDisabled}
+            onConnect={onTikTokConnect}
+            onDisconnect={onTikTokDisconnect}
           />
         </AccordionContent>
       </AccordionItem>

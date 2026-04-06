@@ -1,6 +1,7 @@
 import { Monitor, Smartphone } from "lucide-react";
 
-const durations = [15, 30, 60, 90];
+// Durações máximas: até 80s (1min20)
+const durations = [15, 30, 60, 80];
 
 interface Props {
   duration: number;
