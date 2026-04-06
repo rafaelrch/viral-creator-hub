@@ -48,6 +48,7 @@ const ActionButtons = ({
       URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Erro ao exportar vídeo:", e);
+      toast.error(e instanceof Error ? e.message : "Erro ao exportar o vídeo.");
     } finally {
       clearInterval(interval);
       setTimeout(() => {
