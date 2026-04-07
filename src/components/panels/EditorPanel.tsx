@@ -53,8 +53,6 @@ const EditorPanel = ({
           <SectionScript
             language={state.language}
             onLanguageChange={(l) => update({ language: l })}
-            theme={state.theme}
-            onThemeChange={(t) => update({ theme: t })}
             scriptMode={state.scriptMode}
             onScriptModeChange={(m) => update({ scriptMode: m })}
             aiPrompt={state.aiPrompt}
@@ -77,6 +75,8 @@ const EditorPanel = ({
           <SectionNarration
             voiceId={state.voiceId}
             onVoiceChange={(v) => update({ voiceId: v })}
+            voiceSpeed={state.voiceSpeed}
+            onVoiceSpeedChange={(s) => update({ voiceSpeed: s })}
             description={state.description}
             audioUrl={state.audioUrl}
             onAudioGenerated={(url) => update({ audioUrl: url })}

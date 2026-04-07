@@ -1,6 +1,6 @@
 const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY as string | undefined;
 
-export async function generateSpeech(text: string, voiceId: string): Promise<string> {
+export async function generateSpeech(text: string, voiceId: string, speed = 1.0): Promise<string> {
   if (!ELEVENLABS_API_KEY) {
     throw new Error(
       "Chave da ElevenLabs não configurada. Defina VITE_ELEVENLABS_API_KEY no seu arquivo .env.local."
@@ -23,7 +23,7 @@ export async function generateSpeech(text: string, voiceId: string): Promise<str
           similarity_boost: 0.75,
           style: 0.5,
           use_speaker_boost: true,
-          speed: 1.0,
+          speed,
         },
       }),
     }

@@ -17,12 +17,14 @@ const defaultVoices = [
 interface Props {
   voiceId: string;
   onVoiceChange: (v: string) => void;
+  voiceSpeed: number;
+  onVoiceSpeedChange: (s: number) => void;
   description: string;
   audioUrl: string | null;
   onAudioGenerated: (url: string | null) => void;
 }
 
-const SectionNarration = ({ voiceId, onVoiceChange, description, audioUrl, onAudioGenerated }: Props) => {
+const SectionNarration = ({ voiceId, onVoiceChange, voiceSpeed, onVoiceSpeedChange, description, audioUrl, onAudioGenerated }: Props) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ const SectionNarration = ({ voiceId, onVoiceChange, description, audioUrl, onAud
         setProgress((prev) => Math.min(prev + 5, 90));
       }, 500);
 
-      const url = await generateSpeech(description, voiceId);
+      const url = await generateSpeech(description, voiceId, voiceSpeed);
 
       clearInterval(progressInterval);
       setProgress(100);
@@ -118,6 +120,30 @@ const SectionNarration = ({ voiceId, onVoiceChange, description, audioUrl, onAud
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Speed slider */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+          <span>Velocidade da voz</span>
+          <span className="text-primary font-semibold">
+            {voiceSpeed < 0.85 ? "Lenta" : voiceSpeed > 1.15 ? "Rápida" : "Normal"} ({voiceSpeed.toFixed(1)}x)
+          </span>
+        </label>
+        <input
+          type="range"
+          min={0.7}
+          max={1.2}
+          step={0.1}
+          value={voiceSpeed}
+          onChange={(e) => onVoiceSpeedChange(parseFloat(e.target.value))}
+          className="w-full accent-primary cursor-pointer"
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>0.7x — Lenta</span>
+          <span>1.0x</span>
+          <span>1.2x — Rápida</span>
+        </div>
       </div>
 
       {/* Generate button */}

@@ -23,6 +23,7 @@ export interface ProjectState {
   aiPrompt: string;
   description: string;
   voiceId: string;
+  voiceSpeed: number;
   audioUrl: string | null;
   captionEnabled: boolean;
   captionColor: string;
@@ -49,6 +50,7 @@ const defaultState: ProjectState = {
   aiPrompt: "",
   description: "",
   voiceId: "onwK4e9ZLuTAKqWW03F9",
+  voiceSpeed: 1.0,
   audioUrl: null,
   captionEnabled: true,
   captionColor: "#FFFFFF",
