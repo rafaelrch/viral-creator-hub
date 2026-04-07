@@ -213,9 +213,9 @@ const VideoCreator = () => {
   };
 
   return (
-    <main className="min-h-screen max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-0 lg:gap-1">
-      {/* Left column - Editor */}
-      <div className="border-r border-border overflow-y-auto min-h-screen p-4 space-y-1">
+    <main className="h-full max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-0 lg:gap-1 overflow-hidden">
+      {/* Left column - Editor (scrollable) */}
+      <div className="border-r border-border overflow-y-auto h-full p-4 space-y-1">
           <EditorPanel
             state={state}
             update={update}
@@ -228,16 +228,16 @@ const VideoCreator = () => {
           />
       </div>
 
-      {/* Right column - Preview */}
-      <div className="flex flex-col min-h-screen overflow-y-auto">
-          <div className="flex-1 flex items-center justify-center p-4">
+      {/* Right column - Preview (fixed, no scroll) */}
+      <div className="flex flex-col h-full overflow-hidden">
+          <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
             <PreviewPanel
               state={state}
               registerExportHandler={registerExportHandler}
               tiktokHandle={state.tiktokHandle}
             />
           </div>
-          <div className="border-t border-border p-4">
+          <div className="border-t border-border p-4 flex-shrink-0">
             <ActionButtons
               onExport={exportHandler}
               tiktokEnabled={TIKTOK_FEATURE_ENABLED}

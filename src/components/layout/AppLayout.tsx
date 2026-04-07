@@ -10,9 +10,9 @@ const navItems = [
 
 const AppLayout = () => {
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="h-screen overflow-hidden flex bg-background text-foreground">
       {/* Sidebar */}
-      <aside className="hidden md:flex w-60 border-r border-border bg-muted/40 flex-col">
+      <aside className="hidden md:flex w-60 border-r border-border bg-muted/40 flex-col flex-shrink-0">
         <div className="h-20 px-4 border-b border-border flex items-center">
           <img src={clipzyLogo} alt="Clipzy logo" className="h-16 w-auto object-contain" />
         </div>
@@ -50,7 +50,7 @@ const AppLayout = () => {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 h-full overflow-hidden">
         <Outlet />
       </div>
     </div>
